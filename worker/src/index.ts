@@ -8,10 +8,17 @@ const kafka=new Kafka({
 })
 
 async function main(){
-    const consumer=kafka.consumer({groupId:"main-worker"});
-    while(1){
-
+        const consumer=kafka.consumer({groupId:"main-worker"})
+        await consumer.connect();
+        
+        await consumer.subscribe({topic:TOPIC_NAME,fromBeginning:true})
+        await consumer.run({
+            eachMessage:async({topic,partition,message})=>{
+                console.log({
+                    partition,
+                    offest:(parseInt(message.offset)+1).toString()              
+                  })
+            },
+        })
     }
-}
-
 main();
