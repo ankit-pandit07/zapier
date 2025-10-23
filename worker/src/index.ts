@@ -16,8 +16,17 @@ async function main(){
             eachMessage:async({topic,partition,message})=>{
                 console.log({
                     partition,
-                    offest:(parseInt(message.offset)+1).toString()              
+                    offest:message.offset,
+                    value:message.value.toString()             
                   })
+                  
+                  await new Promise(r=>setTimeout(r,500))
+
+                  await consumer.commitOffsets([{
+                    topic:TOPIC_NAME,
+                    partition:partition,
+                    offset:(parseInt(message.offset)+1).toString()
+                  }])
             },
         })
     }
