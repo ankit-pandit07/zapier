@@ -16,6 +16,7 @@ router.post("/signup",async(req,res)=>{
             message:"Incorrect Inputs"
         })
     }
+    
 
     const userExits=await prismaClient.user.findFirst({
         where:{
@@ -46,10 +47,16 @@ router.post("/signin",async(req,res)=>{
     const body=req.body;
     const parseData=SigninSchema.safeParse(body)
 
+      if (!parseData.success) {
+        return res.status(411).json({
+            message: "Incorrect inputs"
+        })
+    }
+
     const user=await prismaClient.user.findFirst({
         where:{
-            email:parseData.data?.username,
-            password:parseData.data?.password
+            email:parseData.data.username,
+            password:parseData.data.password
         }
     })
 
@@ -68,7 +75,7 @@ router.post("/signin",async(req,res)=>{
     })
 })
 
-router.get("/user",authMiddleware,async(req,res)=>{
+router.get("/",authMiddleware,async(req,res)=>{
     //TODO:Fix the type
     //@ts-ignore
         const id=req.id

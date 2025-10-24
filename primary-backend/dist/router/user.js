@@ -28,7 +28,6 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
             message: "Incorrect Inputs"
         });
     }
-    console.log(parseData);
     const userExits = yield db_1.prismaClient.user.findFirst({
         where: {
             email: parseData.data.username
@@ -51,13 +50,17 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
 }));
 router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const body = req.body;
     const parseData = types_1.SigninSchema.safeParse(body);
+    if (!parseData.success) {
+        return res.status(411).json({
+            message: "Incorrect inputs"
+        });
+    }
     const user = yield db_1.prismaClient.user.findFirst({
         where: {
-            email: (_a = parseData.data) === null || _a === void 0 ? void 0 : _a.username,
-            password: (_b = parseData.data) === null || _b === void 0 ? void 0 : _b.password
+            email: parseData.data.username,
+            password: parseData.data.password
         }
     });
     if (!user) {
@@ -72,7 +75,7 @@ router.post("/signin", (req, res) => __awaiter(void 0, void 0, void 0, function*
         token: token
     });
 }));
-router.get("/user", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.get("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //TODO:Fix the type
     //@ts-ignore
     const id = req.id;
