@@ -16,22 +16,22 @@ exports.userRouter = void 0;
 const express_1 = require("express");
 const middleware_1 = require("../middleware");
 const types_1 = require("../types");
-const db_1 = require("../db");
 const config_1 = require("../config");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const db_1 = require("../db");
 const router = (0, express_1.Router)();
 router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c;
     const body = req.body;
     const parseData = types_1.SignupSchema.safeParse(body);
-    if (!parseData) {
+    if (!parseData.success) {
         return res.status(411).json({
             message: "Incorrect Inputs"
         });
     }
+    console.log(parseData);
     const userExits = yield db_1.prismaClient.user.findFirst({
         where: {
-            email: db_1.prismaClient.data.username
+            email: parseData.data.username
         }
     });
     if (userExits) {
@@ -41,9 +41,9 @@ router.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
     yield db_1.prismaClient.user.create({
         data: {
-            email: (_a = parseData.data) === null || _a === void 0 ? void 0 : _a.username,
-            password: (_b = parseData.data) === null || _b === void 0 ? void 0 : _b.password,
-            name: (_c = parseData.data) === null || _c === void 0 ? void 0 : _c.name
+            email: parseData.data.username,
+            password: parseData.data.password,
+            name: parseData.data.name
         }
     });
     return res.json({

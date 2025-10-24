@@ -1,10 +1,9 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware";
 import { SigninSchema,SignupSchema } from "../types";
-import { prismaClient } from "../db";
 import { JWT_SECRECT } from "../config";
 import  jwt  from "jsonwebtoken";
-import { email } from "zod";
+import { prismaClient } from "../db";
 
 const router=Router();
 
@@ -12,7 +11,7 @@ router.post("/signup",async(req,res)=>{
     const body=req.body;
     const parseData=SignupSchema.safeParse(body);
 
-    if(!parseData){
+    if(!parseData.success){
         return res.status(411).json({
             message:"Incorrect Inputs"
         })
@@ -20,7 +19,7 @@ router.post("/signup",async(req,res)=>{
 
     const userExits=await prismaClient.user.findFirst({
         where:{
-            email:prismaClient.data.username
+            email:parseData.data.username
         }
     });
 
@@ -32,9 +31,9 @@ router.post("/signup",async(req,res)=>{
 
     await prismaClient.user.create({
         data:{
-           email:parseData.data?.username,
-           password:parseData.data?.password,
-           name:parseData.data?.name
+           email:parseData.data.username,
+           password:parseData.data.password,
+           name:parseData.data.name
         }
     })
 
